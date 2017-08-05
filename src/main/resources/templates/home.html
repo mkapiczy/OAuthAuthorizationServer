@@ -24,6 +24,7 @@
                     <input id="data" type="text" class="form-control" placeholder="App name" th:field="*{name}" />
                     <input id="data" type="text" class="form-control" placeholder="App description" th:field="*{description}" />
                     <input id="data" type="password" class="form-control" placeholder="App password" th:field="*{password}" />
+                    <input id="data" type="text" class="form-control" placeholder="App owner (private information)" th:field="*{appOwner}" />
                 </div>
                 <button type="submit" class="btn btn-default">Submit</button>
             </form>
@@ -45,12 +46,14 @@
                     <th>App description</th>
                     <th>App id</th>
                     <th>App Secret</th>
+                    <th>App Owner</th>
                 </tr>
                 <tr th:each="app : ${registeredApps}">
                     <td th:text="${app.name}">Some text</td>
                     <td th:text="${app.description}">Some text</td>
                     <td th:text="${app.appId}">Some text</td>
                     <td th:text="${app.appSecret}">Some text</td>
+                    <td th:text="${app.appOwner}">Some text</td>
                 </tr>
                 </tbody>
             </table>
