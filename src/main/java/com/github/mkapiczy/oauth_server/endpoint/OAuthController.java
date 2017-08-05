@@ -2,9 +2,13 @@ package com.github.mkapiczy.oauth_server.endpoint;
 
 import com.github.mkapiczy.oauth_server.entity.Code;
 import com.github.mkapiczy.oauth_server.entity.RegisteredApp;
+import com.github.mkapiczy.oauth_server.entity.ResourceResponse;
+import com.github.mkapiczy.oauth_server.entity.TokenResponse;
 import com.github.mkapiczy.oauth_server.repository.CodeRepository;
 import com.github.mkapiczy.oauth_server.repository.RegisteredAppRepository;
+import com.github.mkapiczy.oauth_server.service.CodeService;
 import com.github.mkapiczy.oauth_server.service.RandomCodeGeneratorService;
+import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,7 +19,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Date;
 import java.util.List;
 
 @Controller
@@ -24,8 +27,12 @@ public class OAuthController {
 
     @Autowired
     private RegisteredAppRepository appsRepository;
+
     @Autowired
     private CodeRepository codeRepository;
+
+    @Autowired
+    private CodeService codeService;
 
     @Autowired
     private RandomCodeGeneratorService randomCodeGeneratorService;
@@ -55,46 +62,81 @@ public class OAuthController {
 
         List<RegisteredApp> apps = appsRepository.findByAppId(appId);
         if (apps.isEmpty()) {
-            throw new RuntimeException("No app for giver client_id found");
+            throw new RuntimeException("No app for given client_id found:" + appId);
         } else {
             RegisteredApp app = apps.get(0);
-            String code = randomCodeGeneratorService.generateRandom32SignCode();
-            Code authorizationCode = new Code();
-            authorizationCode.setCode(code);
-            authorizationCode.setGenerationDate(new Date());
-            authorizationCode.setValid(true);
+            Code authorizationCode = codeService.createNewAuthorizationCode();
             app.setAuthorizationCode(authorizationCode);
-            codeRepository.save(authorizationCode);
             appsRepository.save(app);
-            redirectUri += "?code=" + code;
+            redirectUri += "?code=" + authorizationCode.getCode();
             return new ModelAndView("redirect:" + redirectUri);
         }
 
     }
 
 
-    @RequestMapping(path = "/access", method = RequestMethod.GET)
+    @RequestMapping(path = "/access_token", method = RequestMethod.GET)
     public void generateAccessToken(HttpServletRequest request, HttpServletResponse response) {
-        request.getParameter("code");
-        request.getParameter("clientId");
+        String requestAuthorizationCode = request.getParameter("code");
+        String requestAppId = request.getParameter("client_id");
 
-        // validate code and clientId
+        List<RegisteredApp> registeredApps = appsRepository.findByAppId(requestAppId);
+        if (registeredApps.isEmpty()) {
+            throw new RuntimeException("No app for given client_id found");
+        } else {
+            RegisteredApp app = registeredApps.get(0);
 
-        String accessToken = randomCodeGeneratorService.generateRandom32SignCode();
-        String refreshToken = randomCodeGeneratorService.generateRandom32SignCode();
+            if (codeService.isAuthorizationCodeValid(app.getAuthorizationCode(), requestAuthorizationCode)) {
+                Code accessToken = codeService.createNewAccessToken();
+                Code refreshToken = codeService.createNewRefreshToken();
 
-
-        String jsonObject = ""; // generate json obejct with accessToken and refreshToken
-        response.setContentType("application/json");
-        PrintWriter out = null;
-        try {
-            out = response.getWriter();
-        } catch (IOException e) {
-            e.printStackTrace();
+                app.setAccessToken(accessToken);
+                app.setRefreshToken(refreshToken);
+                appsRepository.save(app);
+                Gson gson = new Gson();
+                String jsonObject = gson.toJson(new TokenResponse(accessToken.getCode(), refreshToken.getCode()));
+                response.setContentType("application/json");
+                PrintWriter out = null;
+                try {
+                    out = response.getWriter();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                out.print(jsonObject);
+                out.flush();
+            } else {
+                throw new RuntimeException("Authorization code not valid!");
+            }
         }
-        out.print(jsonObject);
-        out.flush();
+    }
 
+    @RequestMapping(path = "/resource", method = RequestMethod.GET)
+    public void handleResourceRequest(HttpServletRequest request, HttpServletResponse response) {
+        String requestAccessToken = request.getParameter("access_token");
+        List<Code> accessTokens = codeRepository.findByCode(requestAccessToken);
+
+        if (accessTokens != null && !accessTokens.isEmpty()) {
+            Code accessToken = accessTokens.get(0);
+            List<RegisteredApp> registeredApps = appsRepository.findByAccessToken(accessToken);
+            if (registeredApps != null && !registeredApps.isEmpty()) {
+                RegisteredApp app = registeredApps.get(0);
+                Gson gson = new Gson();
+                String jsonObject = gson.toJson(new ResourceResponse(app.getAppOwner()));
+                response.setContentType("application/json");
+                PrintWriter out = null;
+                try {
+                    out = response.getWriter();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                out.print(jsonObject);
+                out.flush();
+            } else {
+                throw new RuntimeException("No app for this accessToken");
+            }
+        } else {
+            throw new RuntimeException("No code for request accessToken found");
+        }
     }
 
 
