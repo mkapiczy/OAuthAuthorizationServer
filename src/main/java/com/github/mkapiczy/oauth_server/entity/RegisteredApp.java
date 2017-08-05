@@ -1,4 +1,4 @@
-package com.github.britter.springbootherokudemo.entity;
+package com.github.mkapiczy.oauth_server.entity;
 
 import javax.persistence.*;
 

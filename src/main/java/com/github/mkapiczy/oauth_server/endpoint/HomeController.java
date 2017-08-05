@@ -1,8 +1,8 @@
-package com.github.britter.springbootherokudemo.endpoint;
+package com.github.mkapiczy.oauth_server.endpoint;
 
-import com.github.britter.springbootherokudemo.entity.RegisteredApp;
-import com.github.britter.springbootherokudemo.repository.RegisteredAppRepository;
-import com.github.britter.springbootherokudemo.service.RandomCodeGeneratorService;
+import com.github.mkapiczy.oauth_server.entity.RegisteredApp;
+import com.github.mkapiczy.oauth_server.repository.RegisteredAppRepository;
+import com.github.mkapiczy.oauth_server.service.RandomCodeGeneratorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;

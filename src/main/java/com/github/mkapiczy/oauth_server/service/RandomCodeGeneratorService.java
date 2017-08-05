@@ -1,4 +1,4 @@
-package com.github.britter.springbootherokudemo.service;
+package com.github.mkapiczy.oauth_server.service;
 
 import org.springframework.stereotype.Service;
 

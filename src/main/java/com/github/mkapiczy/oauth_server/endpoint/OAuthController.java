@@ -1,10 +1,10 @@
-package com.github.britter.springbootherokudemo.endpoint;
+package com.github.mkapiczy.oauth_server.endpoint;
 
-import com.github.britter.springbootherokudemo.entity.Code;
-import com.github.britter.springbootherokudemo.entity.RegisteredApp;
-import com.github.britter.springbootherokudemo.repository.CodeRepository;
-import com.github.britter.springbootherokudemo.repository.RegisteredAppRepository;
-import com.github.britter.springbootherokudemo.service.RandomCodeGeneratorService;
+import com.github.mkapiczy.oauth_server.entity.Code;
+import com.github.mkapiczy.oauth_server.entity.RegisteredApp;
+import com.github.mkapiczy.oauth_server.repository.CodeRepository;
+import com.github.mkapiczy.oauth_server.repository.RegisteredAppRepository;
+import com.github.mkapiczy.oauth_server.service.RandomCodeGeneratorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,10 +29,6 @@ public class OAuthController {
 
     @Autowired
     private RandomCodeGeneratorService randomCodeGeneratorService;
-
-
-    //    String appDomain = "http://localhost:8080";
-    String appDomain = "https://fb-login-flow.herokuapp.com";
 
 
     @RequestMapping(path = "/authenticate", method = RequestMethod.GET)
