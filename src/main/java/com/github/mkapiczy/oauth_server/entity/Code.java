@@ -1,9 +1,6 @@
 package com.github.mkapiczy.oauth_server.entity;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.util.Date;
 
 @Entity
@@ -12,9 +9,11 @@ public class Code {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String code;
-    private String type;
+    @Enumerated(EnumType.STRING)
+    private CodeType codeType;
     private Boolean valid;
     private Date generationDate;
+    private Date validTo;
 
     public Long getId() {
         return id;
@@ -24,12 +23,12 @@ public class Code {
         this.id = id;
     }
 
-    public String getType() {
-        return type;
+    public CodeType getCodeType() {
+        return codeType;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setCodeType(CodeType codeType) {
+        this.codeType = codeType;
     }
 
     public String getCode() {
@@ -56,5 +55,13 @@ public class Code {
 
     public void setGenerationDate(Date generationDate) {
         this.generationDate = generationDate;
+    }
+
+    public Date getValidTo() {
+        return validTo;
+    }
+
+    public void setValidTo(Date validTo) {
+        this.validTo = validTo;
     }
 }
