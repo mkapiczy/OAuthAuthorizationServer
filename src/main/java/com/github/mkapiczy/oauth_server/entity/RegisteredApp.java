@@ -16,9 +16,11 @@ public class RegisteredApp {
     @OneToOne
     private Code authorizationCode;
     @OneToOne
-    private Code AccessTokenCode;
+    private Code accessToken;
     @OneToOne
     private Code refreshToken;
+
+    private String appOwner;
 
     public RegisteredApp() {
     }
@@ -79,12 +81,12 @@ public class RegisteredApp {
         this.authorizationCode = authorizationCode;
     }
 
-    public Code getAccessTokenCode() {
-        return AccessTokenCode;
+    public Code getAccessToken() {
+        return accessToken;
     }
 
-    public void setAccessTokenCode(Code accessTokenCode) {
-        AccessTokenCode = accessTokenCode;
+    public void setAccessToken(Code accessToken) {
+        this.accessToken = accessToken;
     }
 
     public Code getRefreshToken() {
@@ -93,5 +95,13 @@ public class RegisteredApp {
 
     public void setRefreshToken(Code refreshToken) {
         this.refreshToken = refreshToken;
+    }
+
+    public String getAppOwner() {
+        return appOwner;
+    }
+
+    public void setAppOwner(String appOwner) {
+        this.appOwner = appOwner;
     }
 }
