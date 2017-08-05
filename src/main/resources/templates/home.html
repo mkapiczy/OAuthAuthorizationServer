@@ -40,8 +40,17 @@
                 </tr>
                 </thead>
                 <tbody>
+                <tr>
+                    <th>App name</th>
+                    <th>App description</th>
+                    <th>App id</th>
+                    <th>App Secret</th>
+                </tr>
                 <tr th:each="app : ${registeredApps}">
                     <td th:text="${app.name}">Some text</td>
+                    <td th:text="${app.description}">Some text</td>
+                    <td th:text="${app.appId}">Some text</td>
+                    <td th:text="${app.appSecret}">Some text</td>
                 </tr>
                 </tbody>
             </table>
