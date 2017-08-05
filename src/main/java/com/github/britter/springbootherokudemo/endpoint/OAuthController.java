@@ -1,5 +1,10 @@
 package com.github.britter.springbootherokudemo.endpoint;
 
+import com.github.britter.springbootherokudemo.entity.Code;
+import com.github.britter.springbootherokudemo.entity.RegisteredApp;
+import com.github.britter.springbootherokudemo.repository.CodeRepository;
+import com.github.britter.springbootherokudemo.repository.RegisteredAppRepository;
+import com.github.britter.springbootherokudemo.service.RandomCodeGeneratorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -10,40 +15,65 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Date;
+import java.util.List;
 
 @Controller
 @RequestMapping("/oauth")
 public class OAuthController {
 
+    @Autowired
+    private RegisteredAppRepository appsRepository;
+    @Autowired
+    private CodeRepository codeRepository;
 
-    private String appId = "1955772338033020";
-    private String appSecret = "3e5e6b3fc275af2d4303391ab7a03e58";
+    @Autowired
+    private RandomCodeGeneratorService randomCodeGeneratorService;
+
+
     //    String appDomain = "http://localhost:8080";
     String appDomain = "https://fb-login-flow.herokuapp.com";
 
 
     @RequestMapping(path = "/authenticate", method = RequestMethod.GET)
-    public ModelAndView authenticationView(HttpServletRequest request, HttpServletResponse response) {
+    public ModelAndView authentionView(HttpServletRequest request, HttpServletResponse response) {
         String redirectUri = request.getParameter("redirect_uri");
-        String clientId = request.getParameter("client_id");
+        String appId = request.getParameter("client_id");
 
-        request.getSession().setAttribute("redirectUri", redirectUri);
+        List<RegisteredApp> apps = appsRepository.findByAppId(appId);
+        if (apps.isEmpty()) {
+            throw new RuntimeException("No app for giver client_id found");
+        } else {
+            request.getSession().setAttribute("redirectUri", redirectUri);
+            request.getSession().setAttribute("appId", appId);
+            return new ModelAndView("authenticate");
 
-        return new ModelAndView("authenticate");
+        }
     }
 
     @RequestMapping(path = "/authenticate", method = RequestMethod.POST)
     public ModelAndView authenticate(HttpServletRequest request, HttpServletResponse response) {
         String redirectUri = (String) request.getSession().getAttribute("redirectUri");
-        String clientId = (String) request.getSession().getAttribute("clientId");
-
-        String code = "123"; // generate code
-
-        // remember code clientId association
+        String appId = (String) request.getSession().getAttribute("appId");
 
 
-        redirectUri += "?code=" + code;
-        return new ModelAndView("redirect:" + redirectUri);
+        List<RegisteredApp> apps = appsRepository.findByAppId(appId);
+        if (apps.isEmpty()) {
+            throw new RuntimeException("No app for giver client_id found");
+        } else {
+            RegisteredApp app = apps.get(0);
+            String code = randomCodeGeneratorService.generateRandom32SignCode();
+            Code authorizationCode = new Code();
+            authorizationCode.setCode(code);
+            authorizationCode.setGenerationDate(new Date());
+            authorizationCode.setValid(true);
+            app.setAuthorizationCode(authorizationCode);
+            codeRepository.save(authorizationCode);
+            appsRepository.save(app);
+            redirectUri += "?code=" + code;
+            return new ModelAndView("redirect:" + redirectUri);
+        }
+
     }
 
 
@@ -54,8 +84,8 @@ public class OAuthController {
 
         // validate code and clientId
 
-        String accessToken = "123"; // generate accessToken
-        String refreshToken = "123"; // generate refresh token
+        String accessToken = randomCodeGeneratorService.generateRandom32SignCode();
+        String refreshToken = randomCodeGeneratorService.generateRandom32SignCode();
 
 
         String jsonObject = ""; // generate json obejct with accessToken and refreshToken
