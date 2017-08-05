@@ -1,9 +1,6 @@
 package com.github.britter.springbootherokudemo.entity;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity
 public class RegisteredApp {
@@ -16,6 +13,12 @@ public class RegisteredApp {
     private String password;
     private String appId;
     private String appSecret;
+    @OneToOne
+    private Code authorizationCode;
+    @OneToOne
+    private Code AccessTokenCode;
+    @OneToOne
+    private Code refreshToken;
 
     public RegisteredApp() {
     }
@@ -66,5 +69,29 @@ public class RegisteredApp {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public Code getAuthorizationCode() {
+        return authorizationCode;
+    }
+
+    public void setAuthorizationCode(Code authorizationCode) {
+        this.authorizationCode = authorizationCode;
+    }
+
+    public Code getAccessTokenCode() {
+        return AccessTokenCode;
+    }
+
+    public void setAccessTokenCode(Code accessTokenCode) {
+        AccessTokenCode = accessTokenCode;
+    }
+
+    public Code getRefreshToken() {
+        return refreshToken;
+    }
+
+    public void setRefreshToken(Code refreshToken) {
+        this.refreshToken = refreshToken;
     }
 }
