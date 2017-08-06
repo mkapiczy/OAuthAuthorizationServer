@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.List;
 
 @Service
 public class CodeService {
@@ -15,6 +16,17 @@ public class CodeService {
 
     @Autowired
     private CodeRepository codeRepository;
+
+
+    public Code findByCodeValue(String codeValue) {
+        List<Code> accessTokens = codeRepository.findByCode(codeValue);
+
+        if (accessTokens != null && !accessTokens.isEmpty()) {
+            return accessTokens.get(0);
+        } else {
+            throw new RuntimeException("No code found for given value");
+        }
+    }
 
     public Code createNewAuthorizationCode() {
         String code = randomCodeGeneratorService.generateRandom32SignCode();

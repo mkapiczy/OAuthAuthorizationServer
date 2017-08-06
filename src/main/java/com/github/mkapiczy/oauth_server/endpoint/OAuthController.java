@@ -4,10 +4,8 @@ import com.github.mkapiczy.oauth_server.entity.db.Code;
 import com.github.mkapiczy.oauth_server.entity.db.RegisteredApp;
 import com.github.mkapiczy.oauth_server.entity.dto.ResourceResponse;
 import com.github.mkapiczy.oauth_server.entity.dto.TokenResponse;
-import com.github.mkapiczy.oauth_server.repository.CodeRepository;
 import com.github.mkapiczy.oauth_server.repository.RegisteredAppRepository;
 import com.github.mkapiczy.oauth_server.service.CodeService;
-import com.github.mkapiczy.oauth_server.service.RandomCodeGeneratorService;
 import com.github.mkapiczy.oauth_server.service.RegisteredAppService;
 import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +18,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.List;
 
 @Controller
 @RequestMapping("/oauth")
@@ -33,13 +30,7 @@ public class OAuthController {
     private RegisteredAppService appService;
 
     @Autowired
-    private CodeRepository codeRepository;
-
-    @Autowired
     private CodeService codeService;
-
-    @Autowired
-    private RandomCodeGeneratorService randomCodeGeneratorService;
 
 
     @RequestMapping(path = "/authenticate", method = RequestMethod.GET)
@@ -47,15 +38,17 @@ public class OAuthController {
         String redirectUri = request.getParameter("redirect_uri");
         String appId = request.getParameter("client_id");
 
-        List<RegisteredApp> apps = appsRepository.findByAppId(appId);
-        if (apps.isEmpty()) {
-            throw new RuntimeException("No app for giver client_id found");
-        } else {
+        RegisteredApp app = appService.findAppByAppId(appId);
+        if (app != null) {
             request.getSession().setAttribute("redirectUri", redirectUri);
             request.getSession().setAttribute("appId", appId);
             return new ModelAndView("authenticate");
-
+        } else {
+            ModelAndView modelAndView = new ModelAndView("authenticate");
+            modelAndView.getModelMap().addAttribute("error", "No app for given appId found!");
+            return modelAndView;
         }
+
     }
 
     @RequestMapping(path = "/authenticate", method = RequestMethod.POST)
@@ -117,32 +110,22 @@ public class OAuthController {
     @RequestMapping(path = "/resource", method = RequestMethod.GET)
     public void handleResourceRequest(HttpServletRequest request, HttpServletResponse response) {
         String requestAccessToken = request.getParameter("access_token");
-        List<Code> accessTokens = codeRepository.findByCode(requestAccessToken);
+        Code accessToken = codeService.findByCodeValue(requestAccessToken);
 
-        if (accessTokens != null && !accessTokens.isEmpty()) {
-            Code accessToken = accessTokens.get(0);
-            List<RegisteredApp> registeredApps = appsRepository.findByAccessToken(accessToken);
-            if (registeredApps != null && !registeredApps.isEmpty()) {
-                RegisteredApp app = registeredApps.get(0);
-                Gson gson = new Gson();
-                String jsonObject = gson.toJson(new ResourceResponse(app.getAppOwner(), app.getEmail()));
-                response.setContentType("application/json");
-                PrintWriter out = null;
-                try {
-                    out = response.getWriter();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                out.print(jsonObject);
-                out.flush();
-            } else {
-                throw new RuntimeException("No app for this accessToken");
-            }
-        } else {
-            throw new RuntimeException("No code for request accessToken found");
+        RegisteredApp app = appService.findAppByAccessToken(accessToken);
+
+        Gson gson = new Gson();
+        String jsonObject = gson.toJson(new ResourceResponse(app.getAppOwner(), app.getEmail()));
+        response.setContentType("application/json");
+        PrintWriter out = null;
+        try {
+            out = response.getWriter();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+        out.print(jsonObject);
+        out.flush();
     }
-
 
 }
 
