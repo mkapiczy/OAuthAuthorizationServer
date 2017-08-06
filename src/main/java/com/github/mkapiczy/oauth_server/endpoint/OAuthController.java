@@ -125,7 +125,7 @@ public class OAuthController {
             if (registeredApps != null && !registeredApps.isEmpty()) {
                 RegisteredApp app = registeredApps.get(0);
                 Gson gson = new Gson();
-                String jsonObject = gson.toJson(new ResourceResponse(app.getAppOwner()));
+                String jsonObject = gson.toJson(new ResourceResponse(app.getAppOwner(), app.getEmail()));
                 response.setContentType("application/json");
                 PrintWriter out = null;
                 try {
