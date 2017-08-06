@@ -80,29 +80,33 @@ public class OAuthController {
     public void generateAccessToken(HttpServletRequest request, HttpServletResponse response) {
         String requestAuthorizationCode = request.getParameter("code");
         String requestAppId = request.getParameter("client_id");
+        String requestAppSecret = request.getParameter("client_secret");
 
         RegisteredApp app = appService.findAppByAppId(requestAppId);
+        if (app.getAppSecret() != null && app.getAppSecret().equals(requestAppSecret)) {
+            if (codeService.isAuthorizationCodeValid(app.getAuthorizationCode(), requestAuthorizationCode)) {
+                Code accessToken = codeService.createNewAccessToken();
+                Code refreshToken = codeService.createNewRefreshToken();
 
-        if (codeService.isAuthorizationCodeValid(app.getAuthorizationCode(), requestAuthorizationCode)) {
-            Code accessToken = codeService.createNewAccessToken();
-            Code refreshToken = codeService.createNewRefreshToken();
-
-            app.setAccessToken(accessToken);
-            app.setRefreshToken(refreshToken);
-            appsRepository.save(app);
-            Gson gson = new Gson();
-            String jsonObject = gson.toJson(new TokenResponse(accessToken.getCode(), refreshToken.getCode()));
-            response.setContentType("application/json");
-            PrintWriter out = null;
-            try {
-                out = response.getWriter();
-            } catch (IOException e) {
-                e.printStackTrace();
+                app.setAccessToken(accessToken);
+                app.setRefreshToken(refreshToken);
+                appsRepository.save(app);
+                Gson gson = new Gson();
+                String jsonObject = gson.toJson(new TokenResponse(accessToken.getCode(), refreshToken.getCode()));
+                response.setContentType("application/json");
+                PrintWriter out = null;
+                try {
+                    out = response.getWriter();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                out.print(jsonObject);
+                out.flush();
+            } else {
+                throw new RuntimeException("Authorization code not valid!");
             }
-            out.print(jsonObject);
-            out.flush();
         } else {
-            throw new RuntimeException("Authorization code not valid!");
+            throw new RuntimeException("App secret not valid!");
         }
 
     }
