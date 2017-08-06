@@ -1,4 +1,4 @@
-package com.github.mkapiczy.oauth_server.entity;
+package com.github.mkapiczy.oauth_server.entity.db;
 
 import javax.persistence.*;
 
@@ -10,7 +10,9 @@ public class RegisteredApp {
     private Long id;
     private String name;
     private String description;
+    private String login;
     private String password;
+    private String email;
     private String appId;
     private String appSecret;
     @OneToOne
@@ -21,9 +23,6 @@ public class RegisteredApp {
     private Code refreshToken;
 
     private String appOwner;
-
-    public RegisteredApp() {
-    }
 
     public Long getId() {
         return id;
@@ -49,6 +48,30 @@ public class RegisteredApp {
         this.description = description;
     }
 
+    public String getLogin() {
+        return login;
+    }
+
+    public void setLogin(String login) {
+        this.login = login;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
     public String getAppId() {
         return appId;
     }
@@ -63,14 +86,6 @@ public class RegisteredApp {
 
     public void setAppSecret(String appSecret) {
         this.appSecret = appSecret;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
     }
 
     public Code getAuthorizationCode() {
@@ -105,3 +120,4 @@ public class RegisteredApp {
         this.appOwner = appOwner;
     }
 }
+

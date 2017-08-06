@@ -1,4 +1,6 @@
-package com.github.mkapiczy.oauth_server.entity;
+package com.github.mkapiczy.oauth_server.entity.db;
+
+import com.github.mkapiczy.oauth_server.entity.CodeType;
 
 import javax.persistence.*;
 import java.util.Date;

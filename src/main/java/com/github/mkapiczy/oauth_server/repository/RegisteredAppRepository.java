@@ -1,7 +1,7 @@
 package com.github.mkapiczy.oauth_server.repository;
 
-import com.github.mkapiczy.oauth_server.entity.Code;
-import com.github.mkapiczy.oauth_server.entity.RegisteredApp;
+import com.github.mkapiczy.oauth_server.entity.db.Code;
+import com.github.mkapiczy.oauth_server.entity.db.RegisteredApp;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

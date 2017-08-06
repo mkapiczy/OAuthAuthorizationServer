@@ -1,6 +1,6 @@
 package com.github.mkapiczy.oauth_server.service;
 
-import com.github.mkapiczy.oauth_server.entity.Code;
+import com.github.mkapiczy.oauth_server.entity.db.Code;
 import com.github.mkapiczy.oauth_server.entity.CodeType;
 import com.github.mkapiczy.oauth_server.repository.CodeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
