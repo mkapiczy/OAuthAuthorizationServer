@@ -1,6 +1,6 @@
 package com.github.mkapiczy.oauth_server.endpoint;
 
-import com.github.mkapiczy.oauth_server.entity.RegisteredApp;
+import com.github.mkapiczy.oauth_server.entity.db.RegisteredApp;
 import com.github.mkapiczy.oauth_server.repository.RegisteredAppRepository;
 import com.github.mkapiczy.oauth_server.service.RandomCodeGeneratorService;
 import org.springframework.beans.factory.annotation.Autowired;
