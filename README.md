@@ -21,11 +21,14 @@ code - authorization code generated in previous step,
 4. Getting required resources with use of access token received in previous step.
 https://oauth-authorization-server.herokuapp.com/oauth/resource?access_token=%s
 
+An example implementation of a client app using the authorization server api can be found in project:
+
+
 ## Running the application
 
 To run the application from your IDE, simply run the `com.github.mkapiczy.oauth_server.Application` class as
 a Java Application.
 Alternatively the application can be started from the terminal using maven with `mvn spring-boot:run`.
-
+OAuthClient - https://github.com/mkapiczy/OAuthClient
 
 
